@@ -68,47 +68,40 @@ func (c *UnleashClient) getStaleFlags(flags []FeatureFlag, onlyStaleFlags bool) 
 	now := time.Now()
 
 	for _, flag := range flags {
-		lifetime := c.getExpectedLifetime(flag.Type)
-		if onlyStaleFlags {
-			if flag.Stale {
-				staleFlags = append(staleFlags, flag.Name)
-			}
-		} else {
-			isStale := flag.Stale || now.Sub(flag.CreatedAt) > lifetime
-			if isStale {
-				staleFlags = append(staleFlags, flag.Name)
-			}
+		if c.isFlagStale(flag, now, onlyStaleFlags) {
+			staleFlags = append(staleFlags, flag.Name)
 		}
 	}
 
 	return staleFlags
 }
 
-func (c *UnleashClient) getExpectedLifetime(flagType string) time.Duration {
-	switch flagType {
-	case "release":
-		if c.Config.ReleaseFlagLifetime == -1 {
-			return time.Duration(math.MaxInt64)
-		}
-		return time.Duration(c.Config.ReleaseFlagLifetime) * 24 * time.Hour
-	case "experiment":
-		if c.Config.ExperimentFlagLifetime == -1 {
-			return time.Duration(math.MaxInt64)
-		}
-		return time.Duration(c.Config.ExperimentFlagLifetime) * 24 * time.Hour
-	case "operational":
-		if c.Config.OperationalFlagLifetime == -1 {
-			return time.Duration(math.MaxInt64)
-		}
-		return time.Duration(c.Config.OperationalFlagLifetime) * 24 * time.Hour
-	case "permission":
-		if c.Config.PermissionFlagLifetime == -1 {
-			return time.Duration(math.MaxInt64)
-		}
-		return time.Duration(c.Config.PermissionFlagLifetime) * 24 * time.Hour
-	case "kill-switch":
-		return time.Duration(math.MaxInt64) // kill-switchは期限切れにならない
-	default:
-		return 30 * 24 * time.Hour // デフォルトは30日
+func (c *UnleashClient) isFlagStale(flag FeatureFlag, now time.Time, onlyStaleFlags bool) bool {
+	if onlyStaleFlags {
+		return flag.Stale
 	}
+	lifetime := c.getExpectedLifetime(flag.Type)
+	return flag.Stale || now.Sub(flag.CreatedAt) > lifetime
+}
+
+func (c *UnleashClient) getExpectedLifetime(flagType string) time.Duration {
+	lifetimeMap := map[string]int{
+		"release":     c.Config.ReleaseFlagLifetime,
+		"experiment":  c.Config.ExperimentFlagLifetime,
+		"operational": c.Config.OperationalFlagLifetime,
+		"permission":  c.Config.PermissionFlagLifetime,
+	}
+
+	if lifetime, ok := lifetimeMap[flagType]; ok {
+		if lifetime == -1 {
+			return time.Duration(math.MaxInt64)
+		}
+		return time.Duration(lifetime) * 24 * time.Hour
+	}
+
+	if flagType == "kill-switch" {
+		return time.Duration(math.MaxInt64)
+	}
+
+	return 30 * 24 * time.Hour // デフォルトは30日
 }
