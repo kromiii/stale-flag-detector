@@ -102,10 +102,10 @@ func (c *UnleashClient) getExpectedLifetime(flagType string) time.Duration {
 		}
 		return time.Duration(c.Config.OperationalFlagLifetime) * 24 * time.Hour
 	case "permission":
-		if c.Config.PermisionFlagLifetime == -1 {
+		if c.Config.PermissionFlagLifetime == -1 {
 			return time.Duration(math.MaxInt64)
 		}
-		return time.Duration(c.Config.PermisionFlagLifetime) * 24 * time.Hour
+		return time.Duration(c.Config.PermissionFlagLifetime) * 24 * time.Hour
 	case "kill-switch":
 		return time.Duration(math.MaxInt64) // kill-switchは期限切れにならない
 	default:
