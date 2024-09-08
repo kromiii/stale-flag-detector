@@ -38,7 +38,7 @@ func NewClient(baseURL, apiToken string, projectID string, cfg *config.Config) *
 	}
 }
 
-func (c *UnleashClient) GetStaleFlags(onlyStaleFlags bool) ([]string, error) {
+func (c *UnleashClient) GetStaleFlags(excludePotentiallyStaleFlags bool) ([]string, error) {
 	url := fmt.Sprintf("%s/admin/projects/%s/features", c.BaseURL, c.ProjectID)
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -60,15 +60,15 @@ func (c *UnleashClient) GetStaleFlags(onlyStaleFlags bool) ([]string, error) {
 		return nil, err
 	}
 
-	return c.getStaleFlags(featureFlagsResp.Features, onlyStaleFlags), nil
+	return c.getStaleFlags(featureFlagsResp.Features, excludePotentiallyStaleFlags), nil
 }
 
-func (c *UnleashClient) getStaleFlags(flags []FeatureFlag, onlyStaleFlags bool) []string {
+func (c *UnleashClient) getStaleFlags(flags []FeatureFlag, excludePotentiallyStaleFlags bool) []string {
 	var staleFlags []string
 	now := time.Now()
 
 	for _, flag := range flags {
-		if c.isFlagStale(flag, now, onlyStaleFlags) {
+		if c.isFlagStale(flag, now, excludePotentiallyStaleFlags) {
 			staleFlags = append(staleFlags, flag.Name)
 		}
 	}
@@ -76,8 +76,8 @@ func (c *UnleashClient) getStaleFlags(flags []FeatureFlag, onlyStaleFlags bool) 
 	return staleFlags
 }
 
-func (c *UnleashClient) isFlagStale(flag FeatureFlag, now time.Time, onlyStaleFlags bool) bool {
-	if onlyStaleFlags {
+func (c *UnleashClient) isFlagStale(flag FeatureFlag, now time.Time, excludePotentiallyStaleFlags bool) bool {
+	if excludePotentiallyStaleFlags || flag.Stale {
 		return flag.Stale
 	}
 	lifetime := c.getExpectedLifetime(flag.Type)

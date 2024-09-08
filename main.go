@@ -16,12 +16,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	onlyStaleFlag := flag.Bool("only-stale", false, "Ignore potentially stale flags")
+	excludePotentiallyStaleFlags := flag.Bool("exclude-potentially-stale-flags", false, "Include potentially stale flags")
 	flag.Parse()
 
 	client := unleash.NewClient(cfg.UnleashAPIEndpoint, cfg.UnleashAPIToken, cfg.ProjectID, cfg)
-	onlyStaleFlags := *onlyStaleFlag
-	staleFlags, err := client.GetStaleFlags(onlyStaleFlags)
+	staleFlags, err := client.GetStaleFlags(*excludePotentiallyStaleFlags)
 	if err != nil {
 		fmt.Printf("Error getting stale flags: %v\n", err)
 		os.Exit(1)
