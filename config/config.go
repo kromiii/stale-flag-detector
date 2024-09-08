@@ -8,80 +8,66 @@ import (
 )
 
 type Config struct {
-	UnleashAPIEndpoint string
-	UnleashAPIToken    string
-	ProjectID          string
-	OpenAIAPIKey       string
-	GitHubToken        string
-	GitHubOwner        string
-	GitHubRepo         string
-	GitHubBaseURL			string
-	ReleaseFlagLifetime int
-	ExperimentFlagLifetime int
+	UnleashAPIEndpoint      string
+	UnleashAPIToken         string
+	ProjectID               string
+	ReleaseFlagLifetime     int
+	ExperimentFlagLifetime  int
 	OperationalFlagLifetime int
-	PermisionFlagLifetime int
+	PermissionFlagLifetime  int
 }
 
 func Load() (*Config, error) {
-	endpoint := os.Getenv("UNLEASH_API_ENDPOINT")
-	token := os.Getenv("UNLEASH_API_TOKEN")
-	projectID := os.Getenv("UNLEASH_PROJECT_ID")
-	openaiKey := os.Getenv("OPENAI_API_KEY")
-	githubToken := os.Getenv("GITHUB_TOKEN")
-	githubOwner := os.Getenv("GITHUB_OWNER")
-	githubRepo := os.Getenv("GITHUB_REPO")
-	githubBaseURL := os.Getenv("GITHUB_BASE_URL")
-	releaseFlagLifetime := os.Getenv("RELEASE_FLAG_LIFETIME")
-	experimentFlagLifetime := os.Getenv("EXPERIMENT_FLAG_LIFETIME")
-	operationalFlagLifetime := os.Getenv("OPERATIONAL_FLAG_LIFETIME")
-	permissionFlagLifetime := os.Getenv("PERMISSION_FLAG_LIFETIME")
+	config := &Config{
+		UnleashAPIEndpoint: os.Getenv("UNLEASH_API_ENDPOINT"),
+		UnleashAPIToken:    os.Getenv("UNLEASH_API_TOKEN"),
+		ProjectID:          getEnvWithDefault("UNLEASH_PROJECT_ID", "default"),
+	}
 
-	if endpoint == "" || token == "" || openaiKey == "" || projectID == "" || githubToken == "" || githubOwner == "" || githubRepo == "" {
+	if config.UnleashAPIEndpoint == "" || config.UnleashAPIToken == "" {
 		return nil, errors.New("missing required environment variables")
 	}
 
-	releaseFlagLifetimeInt, err := parseLifetime(releaseFlagLifetime)
-	if err != nil {
-			return nil, fmt.Errorf("invalid release flag lifetime: %v", err)
+	lifetimes := map[string]*int{
+		"RELEASE_FLAG_LIFETIME":     &config.ReleaseFlagLifetime,
+		"EXPERIMENT_FLAG_LIFETIME":  &config.ExperimentFlagLifetime,
+		"OPERATIONAL_FLAG_LIFETIME": &config.OperationalFlagLifetime,
+		"PERMISSION_FLAG_LIFETIME":  &config.PermissionFlagLifetime,
 	}
 
-	experimentFlagLifetimeInt, err := parseLifetime(experimentFlagLifetime)
-	if err != nil {
-			return nil, fmt.Errorf("invalid experiment flag lifetime: %v", err)
+	defaultValues := map[string]string{
+		"RELEASE_FLAG_LIFETIME":     "40",
+		"EXPERIMENT_FLAG_LIFETIME":  "40",
+		"OPERATIONAL_FLAG_LIFETIME": "7",
+		"PERMISSION_FLAG_LIFETIME":  "permanent",
 	}
 
-	operationalFlagLifetimeInt, err := parseLifetime(operationalFlagLifetime)
-	if err != nil {
-			return nil, fmt.Errorf("invalid operational flag lifetime: %v", err)
+	for envVar, lifetimePtr := range lifetimes {
+		value := getEnvWithDefault(envVar, defaultValues[envVar])
+		lifetime, err := parseLifetime(value)
+		if err != nil {
+			return nil, fmt.Errorf("invalid %s: %v", envVar, err)
+		}
+		*lifetimePtr = lifetime
 	}
 
-	permissionFlagLifetimeInt, err := parseLifetime(permissionFlagLifetime)
-	if err != nil {
-			return nil, fmt.Errorf("invalid permission flag lifetime: %v", err)
-	}
+	return config, nil
+}
 
-	return &Config{
-		UnleashAPIEndpoint: endpoint,
-		UnleashAPIToken:    token,
-		ProjectID:          projectID,
-		OpenAIAPIKey:       openaiKey,
-		GitHubToken:        githubToken,
-		GitHubOwner:        githubOwner,
-		GitHubRepo:         githubRepo,
-		GitHubBaseURL:      githubBaseURL,
-		ReleaseFlagLifetime: releaseFlagLifetimeInt,
-		ExperimentFlagLifetime: experimentFlagLifetimeInt,
-		OperationalFlagLifetime: operationalFlagLifetimeInt,
-		PermisionFlagLifetime: permissionFlagLifetimeInt,
-	}, nil
+func getEnvWithDefault(key, defaultValue string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+	return defaultValue
 }
 
 func parseLifetime(lifetime string) (int, error) {
-	if lifetime == "permanent" {
-			return -1, nil
-	}
-	if lifetime == "" {
+	switch lifetime {
+	case "permanent":
+		return -1, nil
+	case "":
 		return 30, nil // default to 30 days
+	default:
+		return strconv.Atoi(lifetime)
 	}
-	return strconv.Atoi(lifetime)
 }

@@ -39,7 +39,7 @@ func TestGetStaleFlags(t *testing.T) {
 		ReleaseFlagLifetime:     40,
 		ExperimentFlagLifetime:  40,
 		OperationalFlagLifetime: 7,
-		PermisionFlagLifetime:   -1,
+		PermissionFlagLifetime:   -1,
 	}
 
 	// クライアントの作成
@@ -80,7 +80,7 @@ func TestGetExpectedLifetime(t *testing.T) {
 		ReleaseFlagLifetime:     40,
 		ExperimentFlagLifetime:  40,
 		OperationalFlagLifetime: 7,
-		PermisionFlagLifetime:   -1,
+		PermissionFlagLifetime:   -1,
 	}
 	client := NewClient("", "", "", cfg)
 
