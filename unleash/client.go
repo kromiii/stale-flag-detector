@@ -51,6 +51,10 @@ func (c *UnleashClient) GetStaleFlags(excludePotentiallyStaleFlags bool) ([]stri
 	client := &http.Client{}
 	resp, err := client.Do(req)
 
+	if resp == nil {
+		return nil, fmt.Errorf("API request failed: no response")
+	}
+
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("API request failed with status code: %d", resp.StatusCode)
 	}
