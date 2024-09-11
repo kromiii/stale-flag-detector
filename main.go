@@ -28,6 +28,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	if len(staleFlags) == 0 {
+		fmt.Println("No stale flags detected")
+		return
+	}
+
 	if *outputRegex {
 		regex := strings.Join(staleFlags, "|")
 		fmt.Printf("(%s)\n", regex)
