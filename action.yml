@@ -17,6 +17,11 @@ inputs:
     required: false
     default: "default"
 
+outputs:
+  flags:
+    description: "Detected stale flags (in regular expression)"
+    value: ${{ steps.run_detector.outputs.flags }}
+
 runs:
   using: "composite"
   steps:
@@ -53,6 +58,7 @@ runs:
         chmod +x stale-flag-detector
 
     - name: Run stale flag detector
+      id: run_detector
       shell: bash
       env:
         UNLEASH_API_ENDPOINT: ${{ inputs.unleash-api-endpoint }}
@@ -62,8 +68,7 @@ runs:
         OUTPUT=$(./stale-flag-detector --output-regex)
         if [[ "$OUTPUT" == "No stale flags"* ]]; then
           echo "古いフラグは検出されませんでした。処理を終了します。"
+          echo "flags=" >> $GITHUB_OUTPUT
           exit 0
         fi
-        echo "STALE_FLAGS<<EOF" >> $GITHUB_ENV
-        echo "$OUTPUT" >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
+        echo "flags=$OUTPUT" >> $GITHUB_OUTPUT
