@@ -1,6 +1,29 @@
 # stale-flag-detector
 
-A tool to detect stale feature flags in Unleash.
+A CLI tool to detect stale feature flags in your unleash project.
+
+```bash
+% ./stale-flag-detector
+Stale flags:
+- unleash-ai-example-stale
+- another-stale-flag
+```
+
+You can also use the tool in GitHub Actions as follows:
+
+```yaml
+- id: stale-flag-detector
+  uses: kromiii/stale-flag-detector@v0
+  with:
+    unleash-api-endpoint: ${{ secrets.UNLEASH_API_ENDPOINT }}
+    unleash-api-token: ${{ secrets.UNLEASH_API_TOKEN }}
+
+- id: create-issue
+  uses: JasonEtco/create-an-issue@v2
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    STALE_FLAGS: ${{ steps.stale-flag-detector.outputs.flags }}
+```
 
 ## Description
 
@@ -49,6 +72,11 @@ Options:
 ./stale-flag-detector --output-regex
 
 This will output a regex of all stale flags, which can be used with grep to search your codebase for usage of these flags.
+
+```bash
+% ./stale-flag-detector --output-regex
+(unleash-ai-example-stale|another-stale-flag)
+```
 
 ## Contributing
 
