@@ -13,7 +13,7 @@ You can also use the tool in GitHub Actions as follows:
 
 ```yaml
 - id: stale-flag-detector
-  uses: kromiii/stale-flag-detector@v0
+  uses: kromiii/stale-flag-detector@v1
   with:
     unleash-api-endpoint: ${{ secrets.UNLEASH_API_ENDPOINT }}
     unleash-api-token: ${{ secrets.UNLEASH_API_TOKEN }}

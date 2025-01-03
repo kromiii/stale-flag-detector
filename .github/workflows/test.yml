@@ -6,7 +6,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: stale-flag-detector
-        uses: ./ # 同一リポジトリ内のアクションを参照
+        uses: ./ # Directly use the action
         with:
           unleash-api-endpoint: ${{ secrets.UNLEASH_API_ENDPOINT }}
           unleash-api-token: ${{ secrets.UNLEASH_API_TOKEN }}
