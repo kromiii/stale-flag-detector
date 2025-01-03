@@ -1,0 +1,74 @@
+name: "Stale Flag Detector"
+description: "Detects potentially stale flags in your unleash project"
+author: "kromiii"
+branding:
+  icon: "check-circle"
+  color: "green"
+
+inputs:
+  unleash-api-endpoint:
+    description: "The URL of the Unleash API (eg. https://unleash.example.com/api)"
+    required: true
+  unleash-api-token:
+    description: "The API token to use to authenticate against the Unleash API (require admin scope)"
+    required: true
+  unleash-project-id:
+    description: "The ID of the Unleash project to check"
+    required: false
+    default: "default"
+
+outputs:
+  flags:
+    description: "Detected stale flags (in regular expression)"
+    value: ${{ steps.run_detector.outputs.flags }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get latest release
+      id: get_release
+      shell: bash
+      run: |
+        OS=$(echo $RUNNER_OS | tr '[:upper:]' '[:lower:]')
+        ARCH=$(echo $RUNNER_ARCH | tr '[:upper:]' '[:lower:]')
+        if [ "$ARCH" == "x64" ]; then
+          ARCH="amd64"
+        fi
+        RELEASE_INFO=$(curl -s https://api.github.com/repos/kromiii/stale-flag-detector/releases/latest)
+        echo "API Response:"
+        echo "$RELEASE_INFO"
+        if [ -z "$RELEASE_INFO" ]; then
+          echo "Error: Empty response from GitHub API"
+          exit 1
+        fi
+        ASSET_URL=$(echo "$RELEASE_INFO" | tr -d '\000-\037' | jq -r ".assets[] | select(.name | contains(\"$OS\") and contains(\"$ARCH\")) | .browser_download_url")
+        if [ -z "$ASSET_URL" ]; then
+          echo "Error: No matching asset found for $OS-$ARCH"
+          exit 1
+        fi
+        echo "asset_url=$ASSET_URL" >> $GITHUB_OUTPUT
+        echo "version=$(echo "$RELEASE_INFO" | jq -r .tag_name)" >> $GITHUB_OUTPUT
+
+    - name: Download stale flag detector
+      shell: bash
+      run: |
+        sudo apt-get update && sudo apt-get install -y wget
+        wget ${{ steps.get_release.outputs.asset_url }} -O stale-flag-detector.tar.gz
+        tar -xzf stale-flag-detector.tar.gz
+        chmod +x stale-flag-detector
+
+    - name: Run stale flag detector
+      id: run_detector
+      shell: bash
+      env:
+        UNLEASH_API_ENDPOINT: ${{ inputs.unleash-api-endpoint }}
+        UNLEASH_API_TOKEN: ${{ inputs.unleash-api-token }}
+        UNLEASH_PROJECT_ID: ${{ inputs.unleash-project-id }}
+      run: |
+        OUTPUT=$(./stale-flag-detector --output-regex)
+        if [[ "$OUTPUT" == "No stale flags"* ]]; then
+          echo "No stale flags detected. Exiting."
+          echo "flags=" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+        echo "flags=$OUTPUT" >> $GITHUB_OUTPUT

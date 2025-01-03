@@ -1,0 +1,14 @@
+name: Test
+on: workflow_dispatch
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: stale-flag-detector
+        uses: ./ # Directly use the action
+        with:
+          unleash-api-endpoint: ${{ secrets.UNLEASH_API_ENDPOINT }}
+          unleash-api-token: ${{ secrets.UNLEASH_API_TOKEN }}
+      - run: |
+          echo "${{ steps.stale-flag-detector.outputs.flags }}"
