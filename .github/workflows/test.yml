@@ -11,4 +11,4 @@ jobs:
           unleash-api-endpoint: ${{ secrets.UNLEASH_API_ENDPOINT }}
           unleash-api-token: ${{ secrets.UNLEASH_API_TOKEN }}
       - run: |
-          echo ${{ steps.stale-flag-detector.outputs.flags }}
+          echo "${{ steps.stale-flag-detector.outputs.flags }}"
