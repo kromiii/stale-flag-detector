@@ -35,15 +35,15 @@ runs:
           ARCH="amd64"
         fi
         RELEASE_INFO=$(curl -s https://api.github.com/repos/kromiii/stale-flag-detector/releases/latest)
-        echo "API レスポンス:"
+        echo "API Response:"
         echo "$RELEASE_INFO"
         if [ -z "$RELEASE_INFO" ]; then
-          echo "エラー: GitHub APIからのレスポンスが空です"
+          echo "Error: Empty response from GitHub API"
           exit 1
         fi
         ASSET_URL=$(echo "$RELEASE_INFO" | tr -d '\000-\037' | jq -r ".assets[] | select(.name | contains(\"$OS\") and contains(\"$ARCH\")) | .browser_download_url")
         if [ -z "$ASSET_URL" ]; then
-          echo "エラー: $OS-$ARCH に一致するアセットが見つかりません"
+          echo "Error: No matching asset found for $OS-$ARCH"
           exit 1
         fi
         echo "asset_url=$ASSET_URL" >> $GITHUB_OUTPUT
@@ -67,7 +67,7 @@ runs:
       run: |
         OUTPUT=$(./stale-flag-detector --output-regex)
         if [[ "$OUTPUT" == "No stale flags"* ]]; then
-          echo "古いフラグは検出されませんでした。処理を終了します。"
+          echo "No stale flags detected. Exiting."
           echo "flags=" >> $GITHUB_OUTPUT
           exit 0
         fi
