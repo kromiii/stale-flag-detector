@@ -66,9 +66,9 @@ Run the tool with the following command:
 Options:
 
 - --exclude-potentially-stale-flags: Exclude potentially stale flags from the results
-- --output-format: Specifies the output format (defaults to "markdown-unordered_list")
-  - "markdown-unordered_list": Output as Markdown unordered list
-  - "markdown-task_list": Output as Markdown task list
+- --output-format: Specifies the output format (defaults to "markdown-unordered-list")
+  - "markdown-unordered-list": Output as Markdown unordered list
+  - "markdown-task-list": Output as Markdown task list
   - "regex": Output as a grep-compatible regex
 
 ## Example
@@ -81,7 +81,7 @@ Stale flags:
 - another-stale-flag
 
 # Output as Markdown task list
-% ./stale-flag-detector --output-format=markdown-task_list
+% ./stale-flag-detector --output-format=markdown-task-list
 Stale flags:
 - [ ] unleash-ai-example-stale
 - [ ] another-stale-flag

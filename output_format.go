@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	OutputFormatMarkdownUnorderedList = "markdown-unordered_list"
-	OutputFormatMarkdownTaskList      = "markdown-task_list"
+	OutputFormatMarkdownUnorderedList = "markdown-unordered-list"
+	OutputFormatMarkdownTaskList      = "markdown-task-list"
 	OutputFormatRegex                 = "regex"
 )
 
