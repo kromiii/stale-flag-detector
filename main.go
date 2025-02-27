@@ -18,8 +18,13 @@ func main() {
 	}
 
 	excludePotentiallyStaleFlags := flag.Bool("exclude-potentially-stale-flags", false, "Exclude potentially stale flags")
-	outputRegex := flag.Bool("output-regex", false, "Output flags as a grep-compatible regex")
+	outputFormat := flag.String("output-format", string(OutputFormatMarkdownUnorderedList), "Specifies the output format")
 	flag.Parse()
+
+	if err := validateOutputFormatFlag(*outputFormat); err != nil {
+		fmt.Printf("Error loading config: %v\n", err)
+		os.Exit(1)
+	}
 
 	client := unleash.NewClient(cfg.UnleashAPIEndpoint, cfg.UnleashAPIToken, cfg.ProjectID, cfg)
 	staleFlags, err := client.GetStaleFlags(*excludePotentiallyStaleFlags)
@@ -33,13 +38,20 @@ func main() {
 		return
 	}
 
-	if *outputRegex {
-		regex := strings.Join(staleFlags, "|")
-		fmt.Printf("(%s)\n", regex)
-	} else {
+	switch *outputFormat {
+	case OutputFormatMarkdownUnorderedList:
 		fmt.Println("Stale flags:")
 		for _, flag := range staleFlags {
 			fmt.Printf("- %s\n", flag)
 		}
+	case OutputFormatMarkdownTaskList:
+		fmt.Println("Stale flags:")
+		for _, flag := range staleFlags {
+			fmt.Printf("- [ ] %s\n", flag)
+		}
+	case OutputFormatRegex:
+		regex := strings.Join(staleFlags, "|")
+		fmt.Printf("(%s)\n", regex)
+		// we already validated the flag format, so don't neet default clause
 	}
 }
