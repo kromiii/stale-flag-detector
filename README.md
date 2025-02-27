@@ -64,17 +64,30 @@ Run the tool with the following command:
 ./stale-flag-detector [options]
 
 Options:
+
 - --exclude-potentially-stale-flags: Exclude potentially stale flags from the results
-- --output-regex: Output the stale flags as a grep-compatible regex
+- --output-format: Specifies the output format (defaults to "markdown-unordered_list")
+  - "markdown-unordered_list": Output as Markdown unordered list
+  - "markdown-task_list": Output as Markdown task list
+  - "regex": Output as a grep-compatible regex
 
 ## Example
 
-./stale-flag-detector --output-regex
-
-This will output a regex of all stale flags, which can be used with grep to search your codebase for usage of these flags.
-
 ```bash
-% ./stale-flag-detector --output-regex
+# Output as Markdown unordered list (default)
+% ./stale-flag-detector
+Stale flags:
+- unleash-ai-example-stale
+- another-stale-flag
+
+# Output as Markdown task list
+% ./stale-flag-detector --output-format=markdown-task_list
+Stale flags:
+- [ ] unleash-ai-example-stale
+- [ ] another-stale-flag
+
+# Output as regex for grep
+% ./stale-flag-detector --output-format=regex
 (unleash-ai-example-stale|another-stale-flag)
 ```
 
