@@ -16,6 +16,10 @@ inputs:
     description: "The ID of the Unleash project to check"
     required: false
     default: "default"
+  output-format:
+    description: "The format of the output (markdown-unordered-list, markdown-task-list, or regex)"
+    required: false
+    default: "markdown-unordered-list"
 
 outputs:
   flags:
@@ -65,7 +69,7 @@ runs:
         UNLEASH_API_TOKEN: ${{ inputs.unleash-api-token }}
         UNLEASH_PROJECT_ID: ${{ inputs.unleash-project-id }}
       run: |
-        OUTPUT=$(./stale-flag-detector --output-regex)
+        OUTPUT=$(./stale-flag-detector --output-format ${{ inputs.output-format }})
         if [[ "$OUTPUT" == "No stale flags"* ]]; then
           echo "No stale flags detected. Exiting."
           echo "flags=" >> $GITHUB_OUTPUT
