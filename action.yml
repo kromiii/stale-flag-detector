@@ -19,7 +19,7 @@ inputs:
   output-format:
     description: "The format of the output (markdown-unordered-list, markdown-task-list, or regex)"
     required: false
-    default: "markdown-unordered-list"
+    default: "regex"
 
 outputs:
   flags:
