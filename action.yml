@@ -38,7 +38,7 @@ runs:
         if [ "$ARCH" == "x64" ]; then
           ARCH="amd64"
         fi
-        RELEASE_INFO=$(curl -s https://api.github.com/repos/kromiii/stale-flag-detector/releases/latest)
+        RELEASE_INFO=$(curl -s -H "Authorization: token ${{ github.token }}" https://api.github.com/repos/kromiii/stale-flag-detector/releases/latest)
         echo "API Response:"
         echo "$RELEASE_INFO"
         if [ -z "$RELEASE_INFO" ]; then
