@@ -20,6 +20,10 @@ inputs:
     description: "The format of the output (markdown-unordered-list, markdown-task-list, or regex)"
     required: false
     default: "regex"
+  github-pat:
+    description: "GitHub Personal Access Token for downloading releases"
+    required: false
+    default: ${{ github.token }}
 
 outputs:
   flags:
@@ -32,13 +36,15 @@ runs:
     - name: Get latest release
       id: get_release
       shell: bash
+      env:
+        GITHUB_PAT: ${{ inputs.github-pat }}
       run: |
         OS=$(echo $RUNNER_OS | tr '[:upper:]' '[:lower:]')
         ARCH=$(echo $RUNNER_ARCH | tr '[:upper:]' '[:lower:]')
         if [ "$ARCH" == "x64" ]; then
           ARCH="amd64"
         fi
-        RELEASE_INFO=$(curl -s -H "Authorization: token ${{ github.token }}" https://api.github.com/repos/kromiii/stale-flag-detector/releases/latest)
+        RELEASE_INFO=$(curl -s -H "Authorization: token $GITHUB_PAT" https://api.github.com/repos/kromiii/stale-flag-detector/releases/latest)
         echo "API Response:"
         echo "$RELEASE_INFO"
         if [ -z "$RELEASE_INFO" ]; then
