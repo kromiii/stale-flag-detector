@@ -29,36 +29,15 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Get latest release
-      id: get_release
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.23.1'
+        
+    - name: Build
       shell: bash
       run: |
-        OS=$(echo $RUNNER_OS | tr '[:upper:]' '[:lower:]')
-        ARCH=$(echo $RUNNER_ARCH | tr '[:upper:]' '[:lower:]')
-        if [ "$ARCH" == "x64" ]; then
-          ARCH="amd64"
-        fi
-        RELEASE_INFO=$(curl -s -H "Authorization: token ${{ github.token }}" https://api.github.com/repos/kromiii/stale-flag-detector/releases/latest)
-        echo "API Response:"
-        echo "$RELEASE_INFO"
-        if [ -z "$RELEASE_INFO" ]; then
-          echo "Error: Empty response from GitHub API"
-          exit 1
-        fi
-        ASSET_URL=$(echo "$RELEASE_INFO" | tr -d '\000-\037' | jq -r ".assets[] | select(.name | contains(\"$OS\") and contains(\"$ARCH\")) | .browser_download_url")
-        if [ -z "$ASSET_URL" ]; then
-          echo "Error: No matching asset found for $OS-$ARCH"
-          exit 1
-        fi
-        echo "asset_url=$ASSET_URL" >> $GITHUB_OUTPUT
-        echo "version=$(echo "$RELEASE_INFO" | jq -r .tag_name)" >> $GITHUB_OUTPUT
-
-    - name: Download stale flag detector
-      shell: bash
-      run: |
-        sudo apt-get update && sudo apt-get install -y wget
-        wget ${{ steps.get_release.outputs.asset_url }} -O stale-flag-detector.tar.gz
-        tar -xzf stale-flag-detector.tar.gz
+        go build -o stale-flag-detector
         chmod +x stale-flag-detector
 
     - name: Run stale flag detector
