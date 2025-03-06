@@ -10,6 +10,6 @@ jobs:
         with:
           unleash-api-endpoint: ${{ secrets.UNLEASH_API_ENDPOINT }}
           unleash-api-token: ${{ secrets.UNLEASH_API_TOKEN }}
-          output-format: regex
+          output-format: markdown-task-list
       - run: |
           echo "${{ steps.stale-flag-detector.outputs.flags }}"
