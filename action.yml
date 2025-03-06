@@ -81,4 +81,8 @@ runs:
           echo "flags=" >> $GITHUB_OUTPUT
           exit 0
         fi
+        # Escape newlines and set output
+        OUTPUT="${OUTPUT//'%'/'%25'}"
+        OUTPUT="${OUTPUT//$'\n'/'%0A'}"
+        OUTPUT="${OUTPUT//$'\r'/'%0D'}"
         echo "flags=$OUTPUT" >> $GITHUB_OUTPUT
