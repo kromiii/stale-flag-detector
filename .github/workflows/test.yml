@@ -11,8 +11,7 @@ jobs:
           unleash-api-endpoint: ${{ secrets.UNLEASH_API_ENDPOINT }}
           unleash-api-token: ${{ secrets.UNLEASH_API_TOKEN }}
           output-format: markdown-task-list
-      - name: Decode escaped output
+      - name: Echo output
         run: |
-          DECODED_OUTPUT=$(echo "${{ steps.stale-flag-detector.outputs.flags }}" | sed 's/%25/%/g; s/%0A/\n/g; s/%0D/\r/g')
-          echo "Decoded Output:"
-          echo "$DECODED_OUTPUT"
+          echo "Output:"
+          echo "${{ steps.stale-flag-detector.outputs.flags }}"

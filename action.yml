@@ -78,11 +78,8 @@ runs:
         OUTPUT=$(./stale-flag-detector --output-format ${{ inputs.output-format }})
         if [[ "$OUTPUT" == "No stale flags"* ]]; then
           echo "No stale flags detected. Exiting."
-          echo "flags=" >> $GITHUB_OUTPUT
           exit 0
         fi
-        # Escape newlines and set output
-        OUTPUT="${OUTPUT//'%'/'%25'}"
-        OUTPUT="${OUTPUT//$'\n'/'%0A'}"
-        OUTPUT="${OUTPUT//$'\r'/'%0D'}"
-        echo "flags=$OUTPUT" >> $GITHUB_OUTPUT
+        echo "flags<<EOF" >> $GITHUB_OUTPUT
+        echo "$OUTPUT" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
