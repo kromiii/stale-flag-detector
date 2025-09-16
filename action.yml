@@ -62,8 +62,7 @@ runs:
     - name: Download stale flag detector
       shell: bash
       run: |
-        sudo apt-get update && sudo apt-get install -y wget
-        wget ${{ steps.get_release.outputs.asset_url }} -O stale-flag-detector.tar.gz
+        curl -L ${{ steps.get_release.outputs.asset_url }} -o stale-flag-detector.tar.gz
         tar -xzf stale-flag-detector.tar.gz
         chmod +x stale-flag-detector
 
