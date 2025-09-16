@@ -62,7 +62,7 @@ runs:
     - name: Download stale flag detector
       shell: bash
       run: |
-        curl -L ${{ steps.get_release.outputs.asset_url }} -o stale-flag-detector.tar.gz
+        curl -fL --retry 3 ${{ steps.get_release.outputs.asset_url }} -o stale-flag-detector.tar.gz
         tar -xzf stale-flag-detector.tar.gz
         chmod +x stale-flag-detector
 
