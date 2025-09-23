@@ -17,5 +17,25 @@ release:
   github:
     owner: kromiii
     name: stale-flag-detector
+brews:
+  - name: stale-flag-detector
+    description: "A tool to detect stale feature flags in Unleash"
+    homepage: "https://github.com/kromiii/stale-flag-detector"
+    license: "MIT"
+    repository:
+      owner: kromiii
+      name: homebrew-tap
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    commit_author:
+      name: kromiii
+      email: "15026387+kromiii@users.noreply.github.com"
+    commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+    folder: Formula
+    skip_upload: auto
+    test: |
+      system "#{bin}/stale-flag-detector --help"
+    install: |
+      bin.install "stale-flag-detector"
 changelog:
   use: git
